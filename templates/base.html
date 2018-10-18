@@ -1,0 +1,51 @@
+<html>
+
+<head>
+    <title>{%block title %}{%endblock%}</title>
+    {%if DEBUG%}
+    <script src="/static/jquery-3.3.1.js"></script>
+    <script src="/static/vue.js"></script>
+    <script src="/static/semantic.js"></script>
+    <script src="/static/jquery.cookie.js"></script>
+    <link rel="stylesheet" href="/static/semantic.css">
+    {%else%}
+    <script src="/static/jquery-3.3.1.min.js"></script>
+    <script src="/static/vue.min.js"></script>
+    <script src="/static/semantic.min.js"></script>
+    <script src="/static/jquery.cookie.js"></script>
+    <link rel="stylesheet" href="/static/semantic.min.css">
+    {%endif%}
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="/static/md5.js"></script>
+
+    <script>
+        function HTMLEncode(html) {
+            var temp = document.createElement("div");
+            (temp.textContent != null) ? (temp.textContent = html) : (temp.innerText = html);
+            var output = temp.innerHTML;
+            temp = null;
+            return output;
+        }
+        function hash_md5(text) {
+            return hex_md5("{{SALT}}" + String(text));
+        }
+    </script>
+    {%block head%}{%endblock%}
+</head>
+
+<body style="background-color: rgb(236, 233, 233)">
+    <div class="ui main container" style="margin-top:70px;margin-bottom:70px">
+        {%block body%}{%endblock%}
+    </div>
+    <div class="ui center aligned  container">
+        <div style="color: darkgrey">
+            Powered by MikuNotFoundException.<br>
+            QQ:814980678<br>
+            Created in only one day.<br>
+            2018-10-15<br>
+            <a href="https://gitee.com/yutong_java/music-order-web">Gitee page.</a>
+        </div>
+    </div>
+</body>
+
+</html>

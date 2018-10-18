@@ -1,0 +1,210 @@
+{%extends "base.html"%}
+{%block title%}
+查询
+{%endblock%}
+{%block body%}
+<script>
+    var detail;
+    function show_error(msg) {
+        $("#main-form").addClass("error");
+        $("#error-message").text(msg);
+    }
+    function hide_error() {
+        $("#main-form").removeClass("error");
+        $(".input-box").removeClass("error");
+    }
+    function submit() {
+        var submit_id = parseInt($("#submit-id").val());
+        if (isNaN(submit_id)) {
+            show_error("提交ID只能为数字");
+            $("#submit-id-div").addClass("error");
+            return;
+        }
+        var password = $("#password").val();
+        if (password == null) {
+            show_error("请输入密码");
+            $("#password-div").addClass("error");
+            return;
+        }
+        hide_error();
+        $("#submit-button").addClass("loading");
+        $.ajax({
+            url: "/api/query_order",
+            async: true,
+            method: "POST",
+            data: {
+                submit_id: submit_id,
+                password: hash_md5(password)
+            },
+            success: function (res) {
+                res = JSON.parse(res);
+                console.log(res);
+                if (res.status != 0) {
+                    show_error(res.message);
+                    return;
+                }
+                detail.order = res.data;
+                $("#detail-form").show();
+            },
+            error: function (res, err) {
+                show_error(err);
+            }
+            , complete: () => $("#submit-button").removeClass("loading")
+        });
+    }
+    $(this).ready(function () {
+        detail = new Vue({
+            el: "#detail-form",
+            data: {
+                order: {},
+                error: false,
+                error_message: "",
+                success: false,
+                success_message: "",
+                loading: false,
+            }, methods: {
+                modify: function () {
+                    this.success = false;
+                    console.log(this.order);
+                    if (isNaN(parseInt(this.order.song_id))) {
+                        this.error = true;
+                        this.error_message = "歌曲ID只能是数字.";
+                        return;
+                    }
+                    if (this.order.song_id == "" || this.order.orderer == "") {
+                        this.error = true;
+                        this.error_message = "请输入所有必填内容.";
+                        return
+                    }
+                    this.error = false;
+                    this.loading = true;
+                    $.ajax({
+                        url: "/api/modify_order",
+                        async: true,
+                        method: "POST",
+                        data: {
+                            submit_id: $("#submit-id").val(),
+                            password: hash_md5($("#password").val()),
+                            data: JSON.stringify(detail.order)
+                        },
+                        success: function (res) {
+                            res = JSON.parse(res);
+                            if (res.status != 0) {
+                                detail.error = true;
+                                detail.error_message = res.message;
+                                return;
+                            }
+                            detail.success = true;
+                            detail.success_message = "提交成功"
+                        }, complete: function () {
+                            detail.loading = false;
+                        }, error: function (res, err) {
+                            detail.error = true;
+                            detail.error_message = err;
+                        }
+                    })
+                }, keydown: () => detail.error = false,
+
+            }
+        });
+        $(".input-box").keydown(function (evt) {
+            hide_error();
+            if (evt.key == "Enter") {
+                submit();
+            }
+        });
+        $("#detail-form").hide();
+        $("#submit-button").click(() => submit());
+    });
+</script>
+<div style="top: 10%">
+    <div class="ui left aligned container" style="width: 100%">
+        <div class="ui header">
+            <h1>查询</h1>
+        </div>
+        <div class="ui segment stacked ">
+            <div class="ui form" id="main-form">
+                <div class="field input-box" id="submit-id-div">
+                    <input placeholder="请求ID.." id="submit-id" class="input-box">
+                </div>
+                <div class="field input-box" id="password-div">
+                    <input type="password" placeholder="密码" id="password" class="input-box">
+                </div>
+                <div class="ui green submit button" id="submit-button">
+                    查询
+                </div>
+                <div class="ui error message">
+                    <div class="ui header">
+                        错误
+                    </div>
+                    <p id="error-message">
+
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="ui segment stacked">
+            <div class="ui form" id="detail-form" v-bind:class="{error:error,success:success}">
+                <div class="field">
+                    <div class="ui left corner labeled fluid icon input">
+                        <input placeholder="网易云歌曲ID(必填).." id="song" class="submit-form" v-model="order.song_id"
+                            v-on:keydown="keydown">
+                        <div class="ui left corner label" style="top: 0px;left: 0px;">
+                            <i class="asterisk icon"></i>
+                        </div>
+                        <i class="music icon"></i>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui left corner labeled fluid icon input">
+                        <input placeholder="点歌人姓名及班级(必填).." id="orderer" class="detail-form" v-model="order.orderer"
+                            v-on:keydown="keydown">
+                        <div class="ui left corner label" style="top: 0px;left: 0px;">
+                            <i class="asterisk icon"></i>
+                        </div>
+                        <i class="user icon"></i>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui fluid icon input">
+                        <input placeholder="被点歌人姓名(可空).." id="order-to" class="detail-form" v-model="order.orderto"
+                            v-on:keydown="keydown">
+                        <i class="at icon"></i>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui fluid container">
+                        <textarea v-model="order.comment" autofocus id="comment" placeholder="留言(可空).." class="detail-form"
+                            v-on:keydown="keydown" style="height:100px;min-height:100px;min-width: 100%;max-width: 100%"></textarea>
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" id="anonymous" class="detail-form" v-model="order.anonymous">
+                        <label>匿名(不会公开身份信息)</label>
+                    </div>
+                </div>
+                <div class="ui message ">
+                    <p>提交于<span v-text="order.time"></span>
+                    </p>
+                </div>
+                <div class="ui success message">
+                    <div class="ui header">
+                        提交成功
+                    </div>
+                    <p v-text="success_message"></p>
+                </div>
+                <div class="ui error message">
+                    <div class="ui header">
+                        错误
+                    </div>
+                    <p v-text="error_message"></p>
+                </div>
+                <div class="ui large green submit button" id="modify-button" v-on:click="modify" v-bind:class="{loading:loading}">
+                    修改
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}

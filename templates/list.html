@@ -1,0 +1,88 @@
+<script src="/static/vue.js"></script>
+<script>
+    var list;
+    $(this).ready(function () {
+        list = new Vue({
+            delimiters: ['{[', ']}'],
+            el: "#list",
+            data: {
+                song_list: []
+            },
+            methods: {
+                getAddress: function (id) {
+                    return "//music.163.com/outchain/player?type=2&id={id}&auto=1&height=66".replace(/{id}/g, id);
+                },
+                click: function (song_id) {
+                    console.log(event);
+                    console.log("clicked " + song_id);
+                    $("#song").val(song_id);
+                    $('body,html').animate({ scrollTop: 0 }, "fast", function () {
+                        $("#orderer").focus();
+                    });
+                },
+                getSourceURL: function (id) {
+                    return "https://music.163.com/#/song?id=" + id;
+                }
+            }, computed: {
+                song_length: function () {
+                    return this.song_list.length;
+                }
+            }
+        });
+
+        refresh_list();
+    });
+    function refresh_list() {
+        $("#loader").show();
+        $.ajax({
+            url: "/api/order_list",
+            async: true,
+            method: "POST",
+            success: function (obj) {
+                var json = JSON.parse(obj);
+                var arr = [];
+                for (key in json) {
+                    arr.push({ id: key, count: json[key] });
+                }
+                arr.sort((a, b) => a.count < b.count);
+                list.song_list = arr;
+                $("#loader").hide();
+                $("#list-container").css({ "min-height": "0%" });
+            }, error: function (res, err) {
+                show_error(err);
+            }
+        });
+    }
+</script>
+
+<div class="ui active inverted dimmer" id="loader">
+    <div class="ui text loader">正在加载...</div>
+</div>
+<div class="ui one column grid" id="list">
+    <div class="ui column" v-for="(item,index) in song_list" :key="item.id" style="padding-bottom:0px">
+        <div class="ui one column grid">
+            <div class="ui column">
+                <div class="ui fluid container" style="height:100px">
+                    <iframe frameborder="no" border="0" style="margin-left:0;margin-right: 0 ;width:100%" v-bind:src="getAddress(item.id)"></iframe>
+                </div>
+            </div>
+            <div class="ui column">
+                <div class="ui right aligned container">
+                    <a class="ui circular blue small icon button" v-bind:href="getSourceURL(item.id)" target="_blank"
+                        style="margin-right: 20px;">
+                        <i class="icon send"></i>
+                    </a>
+                    <div class="ui left labeled button">
+                        <div class="ui label" style="cursor: default">
+                            已有 <span v-text="item.count"></span> 预订.
+                        </div>
+                        <div class="ui icon yellow button order-button" v-bind:song-id="item.id" v-on:click="click(item.id)">
+                            <i class="check icon"></i>我也要点
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ui section divider" v-if="index!=song_length-1" style="margin-bottom:0px"></div>
+    </div>
+</div>

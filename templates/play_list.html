@@ -1,0 +1,191 @@
+{%extends "base.html"%}
+{%block title%}
+播放列表
+{%endblock%}
+{%block body%}
+<script>
+    var list;
+    $(this).ready(function () {
+        $("#list-container").hide();
+        $("#password").keydown(function (evt) {
+            if (evt.key == "Enter") {
+                fetch();
+            }
+        });
+        list = new Vue({
+            el: "#list",
+            data: {
+                play_list: [],
+                is_admin: false
+            }, methods: {
+                getAddress: function (id) {
+                    return "//music.163.com/outchain/player?type=2&id={id}&auto=1&height=66".replace(/{id}/g, id);
+                },
+                getSourceURL: function (id) {
+                    return "https://music.163.com/#/song?id=" + id;
+                },
+                HTMLEncode: function (x) {
+                    return HTMLEncode(x);
+                },
+                remove_song: function (id) {
+                    console.log(id);
+                    $.ajax({
+                        url: "/api/remove_song",
+                        method: "POST",
+                        async: true,
+                        data: {
+                            password: hash_md5($("#password").val()),
+                            id: id,
+                        }, success: function (result) {
+                            var json = JSON.parse(result);
+                            if (json.status != 0) {
+                                show_error(json.message);
+                                return;
+                            }
+                            refresh_list();
+                        }, error: function (res, err) {
+                            show_error(err);
+                        }
+                    })
+                },
+                remove: function (submit_id) {
+                    console.log("removing id " + submit_id);
+                    $.ajax({
+                        url: "/api/remove_order",
+                        method: "POST",
+                        async: true,
+                        data: {
+                            password: hash_md5($("#password").val()),
+                            submit_id: submit_id,
+                        }, success: function (result) {
+                            var json = JSON.parse(result);
+                            if (json.status != 0) {
+                                show_error(json.message);
+                                return;
+                            }
+                            refresh_list();
+                        }, error: function (res, err) {
+                            show_error(err);
+                        }
+                    })
+                }
+            }
+        });
+        $("#submit-button").click(() => fetch());
+
+    });
+    function show_error(msg) {
+        $("#message").text(msg);
+        $("#main-form").addClass("error");
+        $('body,html').animate({ scrollTop: 0 }, "fast");
+    }
+    function hide_error() {
+        $("#main-form").removeClass("error");
+    }
+    function refresh_list() {
+        $.ajax({
+            url: "/api/dj_list",
+            method: "GET",
+            async: true,
+            data: {
+                password: hash_md5($("#password").val())
+            }, success: function (result) {
+                var json = JSON.parse(result).data;
+                if (JSON.parse(result).status != 0) {
+                    show_error(JSON.parse(result).message);
+                    return;
+                }
+                list.is_admin = JSON.parse(result).is_admin;
+                var play_list = [];
+                for (key in json) {
+                    json[key].sort((a, b) => new Date(a.time) > new Date(b.time));
+                    play_list.push({ id: key, orders: json[key] });
+                }
+                play_list.sort((a, b) => a.orders.length < b.orders.length);
+                console.log(play_list);
+                list.play_list = play_list;
+                $("#list-container").show();
+            }, error: function (res, err) {
+                show_error(err);
+            }, complete: () => $("#submit-button").removeClass("loading")
+        });
+    }
+    function fetch() {
+        hide_error();
+        $("#submit-button").addClass("loading");
+        refresh_list();
+    }
+</script>
+<div style="top: 10%">
+    <div class="ui left aligned container" style="width: 100%">
+        <div class="ui header">
+            <h1>播放列表</h1>
+        </div>
+        <div class="ui stacked segment">
+            <div class="ui form" id="main-form">
+                <div class="field">
+                    <label>密码:</label>
+                    <input type="password" id="password">
+                </div>
+                <div class="ui error message" id="error-box">
+                    <div class="ui header">
+                        错误
+                    </div>
+                    <p id="message"></p>
+                </div>
+                <div class="ui submit button" id="submit-button">查询</div>
+            </div>
+        </div>
+        <div class="ui stacked segment" id="list-container">
+            <div class="ui one column grid" id="list">
+                <div class="ui column" v-for="(item,index) in play_list">
+                    <div class="ui fluid container" style="height:100px">
+                        <iframe frameborder="no" border="0" style="margin-left:0;margin-right: 0 ;width:100%"
+                            v-bind:src="getAddress(item.id)"></iframe>
+                    </div>
+                    <table class="ui table">
+                        <thead>
+                            <tr>
+                                <th v-if="is_admin">请求ID</th>
+                                <th v-if="is_admin">请求密码</th>
+                                <th>点歌人</th>
+                                <th>被点歌人</th>
+                                <th>时间</th>
+                                <th v-if="is_admin">匿名</th>
+                                <th>备注</th>
+                                <th v-if="is_admin">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="order in item.orders">
+                                <td v-if="is_admin" v-text="order.submit_id"></td>
+                                <td v-if="is_admin" v-text="order.password"></td>
+                                <td v-text="HTMLEncode(order.orderer)"> </td>
+                                <td v-text="HTMLEncode(order.orderto)"> </td>
+                                <td v-text="order.time"></td>
+                                <td v-if="is_admin&&order.anonymous"><i class="green checkmark icon"></i></td>
+                                <td v-if="is_admin&&(!order.anonymous)"></td>
+                                <td v-text="HTMLEncode(order.comment)" style="word-break: break-all;word-wrap: break-word">
+                                </td>
+                                <td v-if="is_admin">
+                                    <div class="ui icon button" v-on:click="remove(order.submit_id)">
+                                        <i class="trash icon"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="ui left aligned container">
+                        <a class="ui blue  icon button" v-bind:href="getSourceURL(item.id)" target="_blank">
+                            <i class="icon send"></i>
+                        </a>
+                        <div class="ui icon button" v-if="is_admin" v-on:click="remove_song(item.id)">
+                            <i class="trash icon"></i>
+                        </div>
+                    </div>
+                    <div class="ui section divider" v-if="index!=play_list.length-1" style="margin-bottom:0px"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> {%endblock%}
