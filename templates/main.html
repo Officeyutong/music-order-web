@@ -4,6 +4,7 @@
 {%endblock%}
 {%block body%}
 <script>
+    var submiting = false;
     function hash_md5(text) {
         return "{{SALT}}" + hex_md5(text);
     }
@@ -16,6 +17,7 @@
         $("#message").text("");
     }
     function submit() {
+        if (submiting) return;
         $("#main-form").removeClass("success");
         hide_error();
         if ($("#song").val().trim() == "") {
@@ -40,6 +42,7 @@
             "anonymous": $("#anonymous").prop("checked")
         });
         $("#submit-button").addClass("loading");
+        submiting = true;
         $.ajax(
             {
                 url: "/api/submit",
@@ -62,6 +65,7 @@
                 },
                 complete: function () {
                     $("#submit-button").removeClass("loading");
+                    submiting = false;
                 }, error: function (req, err) {
                     show_error(err);
                 }
