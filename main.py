@@ -58,7 +58,7 @@ def consts():
     }
 
 
-@app.route("/favicon.ico", methods=["POST","GET"])
+@app.route("/favicon.ico", methods=["POST", "GET"])
 def favicon():
     return redirect("/static/favicon.ico")
 
@@ -80,6 +80,12 @@ def modify_page():
 
 @app.route("/api/submit", methods=["POST"])
 def submit():
+    submit_time = int(request.cookies.get("submit_time", 0))
+    if submit_time >= config.MAX_ORDER_TIME_PER_DAY:
+        return encode_json({
+            "status": -1,
+            "message": "您的提交次数过多"
+        })
     import random
     decoder = JSONDecoder()
     submit_data = decoder.decode(request.form["data"])
@@ -102,11 +108,14 @@ def submit():
     app.config["songs"][song_id].append(submit_id)
     app.config["by_id"][submit_id] = order
     save_data()
-    return encode_json({
+    resp: Response = make_response(encode_json({
         "status": 0,
         "submit_id": submit_id,
         "password": password
-    })
+    }))
+    resp.set_cookie("submit_time", str(submit_time+1),
+                    expires=datetime.today()+timedelta(days=1))
+    return resp
 
 
 @app.route("/api/order_list", methods=["POST", "GET"])

@@ -16,10 +16,6 @@
         $("#message").text("");
     }
     function submit() {
-        var max_order_time = parseInt("{{ORDER_LIMIT}}");
-        if ($.cookie("submit_time") == null) {
-            $.cookie("submit_time", "0", { expires: 1 });
-        }
         $("#main-form").removeClass("success");
         hide_error();
         if ($("#song").val().trim() == "") {
@@ -36,11 +32,6 @@
             show_error("请输入正确的歌曲ID");
             return;
         }
-        if (parseInt($.cookie("submit_time")) >= max_order_time) {
-            show_error("您已达到今日提交上限.");
-            return;
-        }
-        $.cookie("submit_time", parseInt($.cookie("submit_time")) + 1, { expires: 1 });
         var submit_data = JSON.stringify({
             "song": id,
             "orderer": $("#orderer").val(),
