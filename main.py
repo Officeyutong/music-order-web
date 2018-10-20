@@ -32,9 +32,15 @@ def load_data():
             if "next_id" not in json_obj:
                 app.config["songs"] = json_obj
             else:
+                to_remove = set()
                 app.config["songs"] = json_obj["songs"]
                 app.config["next_id"] = json_obj["next_id"]
                 app.config["by_id"] = json_obj["by_id"]
+                for key in app.config["songs"]:
+                    if len(app.config["songs"]) == 0:
+                        to_remove.add(key)
+                for x in to_remove:
+                    del app.config["songs"][x]
         print("Loaded:{}".format(json_obj))
 
 
@@ -143,6 +149,8 @@ def dj_list():
     is_admin = False
     if get_md5(config.DJ_PASSWORD) == password.lower():
         for k, v in app.config["songs"].items():
+            if len(v) == 0:
+                continue
             result[k] = list()
             for order in v:
                 order_obj = app.config["by_id"][order]
@@ -154,6 +162,8 @@ def dj_list():
     elif get_md5(config.ADMIN_PASSWORD) == password.lower():
         result = {}
         for k, v in app.config["songs"].items():
+            if len(v) == 0:
+                continue
             result[k] = list()
             for idx in v:
                 result[k].append(app.config["by_id"][idx])
