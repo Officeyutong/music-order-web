@@ -98,7 +98,7 @@
                 list.is_admin = JSON.parse(result).is_admin;
                 var play_list = [];
                 for (key in json) {
-                    json[key].sort((a, b) => a.submit_id - b.submit_id);
+                    json[key].sort((a, b) => parseInt(a.submit_id) - parseInt(b.submit_id));
                     play_list.push({ id: key, orders: json[key], min_submit_id: json[key][0].submit_id });
                 }
                 play_list.sort(function (a, b) {
