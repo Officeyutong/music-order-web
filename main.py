@@ -123,7 +123,11 @@ def order_list():
     result = {
     }
     for k, v in app.config["songs"].items():
-        result[str(k)] = len(v)
+        v.sort()
+        result[str(k)] = {
+            "count": len(v),
+            "min_id": v[0]
+        }
     return json.JSONEncoder().encode(result)
 
 
@@ -182,6 +186,8 @@ def remove_order():
     order_obj = app.config["by_id"][submit_id]
     del app.config["by_id"][submit_id]
     app.config["songs"][order_obj["song_id"]].remove(submit_id)
+    if len(app.config["songs"][order_obj["song_id"]]) == 0:
+        del app.config["songs"][order_obj["song_id"]]
     save_data()
     return encode_json({
         "status": 0

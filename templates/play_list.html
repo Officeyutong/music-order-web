@@ -98,10 +98,14 @@
                 list.is_admin = JSON.parse(result).is_admin;
                 var play_list = [];
                 for (key in json) {
-                    json[key].sort((a, b) => new Date(a.time) > new Date(b.time));
-                    play_list.push({ id: key, orders: json[key] });
+                    json[key].sort((a, b) => a.submit_id < b.submit_id);
+                    play_list.push({ id: key, orders: json[key], min_submit_id: json[key][0].submit_id });
                 }
-                play_list.sort((a, b) => a.orders.length < b.orders.length);
+                play_list.sort(function (a, b) {
+                    if (a.orders.length != b.orders.length) return b.orders.length - a.orders.length;
+                    else return parseInt(a.min_submit_id) - parseInt(b.min_submit_id);
+
+                });
                 console.log(play_list);
                 list.play_list = play_list;
                 $("#list-container").show();

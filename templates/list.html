@@ -42,9 +42,14 @@
                 var json = JSON.parse(obj);
                 var arr = [];
                 for (key in json) {
-                    arr.push({ id: key, count: json[key] });
+                    arr.push({ id: key, count: json[key].count, min_id: json[key].min_id });
                 }
-                arr.sort((a, b) => a.count < b.count);
+                arr.sort(function (a, b) {
+                    if (a.count != b.count) {
+                        return b.count - a.count;
+                    }
+                    return b.min_id - a.min_id;
+                });
                 list.song_list = arr;
                 $("#loader").hide();
                 $("#list-container").css({ "min-height": "0%" });
