@@ -125,7 +125,6 @@ def order_list():
     for k, v in app.config["songs"].items():
         v.sort()
         if len(v) == 0:
-            del app.config["songs"][k]
             continue
         result[str(k)] = {
             "count": len(v),
