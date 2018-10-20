@@ -126,7 +126,7 @@ def order_list():
         v.sort()
         result[str(k)] = {
             "count": len(v),
-            "min_id": v[0]
+            "min_submit_id": v[0]
         }
     return json.JSONEncoder().encode(result)
 

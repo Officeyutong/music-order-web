@@ -42,13 +42,13 @@
                 var json = JSON.parse(obj);
                 var arr = [];
                 for (key in json) {
-                    arr.push({ id: key, count: json[key].count, min_id: json[key].min_id });
+                    arr.push({ id: key, count: json[key].count, min_submit_id: json[key].min_submit_id });
                 }
                 arr.sort(function (a, b) {
                     if (a.count != b.count) {
                         return b.count - a.count;
                     }
-                    return b.min_id - a.min_id;
+                    return b.min_submit_id - a.min_submit_id;
                 });
                 list.song_list = arr;
                 $("#loader").hide();
