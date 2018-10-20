@@ -150,7 +150,7 @@
                     <table class="ui table">
                         <thead>
                             <tr>
-                                <th v-if="is_admin">请求ID</th>
+                                <th>请求ID</th>
                                 <th v-if="is_admin">请求密码</th>
                                 <th>点歌人</th>
                                 <th>被点歌人</th>
@@ -162,7 +162,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="order in item.orders">
-                                <td v-if="is_admin" v-text="order.submit_id"></td>
+                                <td v-text="order.submit_id"></td>
                                 <td v-if="is_admin" v-text="order.password"></td>
                                 <td v-text="HTMLEncode(order.orderer)"> </td>
                                 <td v-text="HTMLEncode(order.orderto)"> </td>

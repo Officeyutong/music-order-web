@@ -148,7 +148,6 @@ def dj_list():
                 if order_obj["anonymous"]:
                     result[k][-1]["orderer"] = "匿名"
                 del result[k][-1]["anonymous"]
-                del result[k][-1]["submit_id"]
                 del result[k][-1]["password"]
     elif get_md5(config.ADMIN_PASSWORD) == password.lower():
         result = {}
