@@ -41,7 +41,8 @@ def load_data():
                         to_remove.add(key)
                 for x in to_remove:
                     del app.config["songs"][x]
-        print("Loaded:{}".format(json_obj))
+        if config.DEBUG:
+            print("Loaded:{}".format(json_obj))
 
 
 def save_data():
@@ -51,7 +52,8 @@ def save_data():
         "songs": app.config["songs"],
         "by_id": app.config["by_id"]
     }
-    print("Saving...{}".format(saving))
+    if config.DEBUG:
+        print("Saving...{}".format(saving))
     with open("autosave.bak", "w") as file:
         json.dump(saving, file)
 
@@ -187,7 +189,6 @@ def remove_order():
             "status": -1,
             "message": "密码错误."
         })
-    print(request.form)
     submit_id = str(request.form["submit_id"])
     if submit_id not in app.config["by_id"]:
         return encode_json({
@@ -252,7 +253,6 @@ def query_order():
 
 @app.route("/api/modify_order", methods=["POST"])
 def modify_order():
-    print(request.form)
     submit_id = request.form["submit_id"]
     password = request.form["password"]
     order = JSONDecoder().decode(request.form["data"])
