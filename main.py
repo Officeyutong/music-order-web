@@ -291,5 +291,4 @@ def get_md5(text: str):
 
 
 if __name__ == "__main__":
-    init()
     app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
