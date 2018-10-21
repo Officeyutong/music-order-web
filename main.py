@@ -1,5 +1,5 @@
 from flask import Flask, request, render_template, Response, make_response, redirect
-
+from flask_sqlalchemy import SQLAlchemy
 import json
 from json import JSONDecoder
 from collections import namedtuple
@@ -10,8 +10,14 @@ except Exception as ex:
     import config_default as config
 
 app = Flask(__name__)
+if config.USE_DATABASE:
+    app.config['SQLALCHEMY_DATABASE_URI'] = config.SQL_CONNECT
+    if config.DEBUG:
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = True
+    else:
+        app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db = SQLAlchemy(app)
 
-autosave_thread = None
 
 @app.before_first_request
 def init():
@@ -19,9 +25,6 @@ def init():
     app.config["next_id"] = 1
     app.config["by_id"] = {}
     load_data()
-    from threading import Thread
-    autosave_thread = Thread(target=save_data)
-    # autosave_thread.start()
 
 
 def load_data():
