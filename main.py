@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 autosave_thread = None
 
-
+@app.before_first_request
 def init():
     app.config["songs"] = {}
     app.config["next_id"] = 1
