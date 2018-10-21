@@ -29,6 +29,30 @@
         function hash_md5(text) {
             return hex_md5("{{SALT}}" + String(text));
         }
+        function is_number(text) {
+            numbers = new Set(["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]);
+            text = text.trim();
+            for (i in text) {
+                var chr = text[i];
+                console.log(chr);
+                if (numbers.has(chr) == false) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        function parseUrl(url) {
+            var obj = {};
+            var query = url.split("?")[1];
+            var queryArr = query.split("&");
+            queryArr.forEach(function (item) {
+
+                var key = item.split("=")[0];
+                var value = item.split("=")[1];
+                obj[key] = value;
+            });
+            return obj;
+        }
     </script>
     {%block head%}{%endblock%}
 </head>

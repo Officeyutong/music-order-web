@@ -5,9 +5,7 @@
 {%block body%}
 <script>
     var submiting = false;
-    function hash_md5(text) {
-        return "{{SALT}}" + hex_md5(text);
-    }
+    var submit_data;
     function show_error(str) {
         $("#message").html($("#message").html() + str + "<br>");
         $("#main-form").addClass("error");
@@ -16,6 +14,7 @@
         $("#main-form").removeClass("error");
         $("#message").text("");
     }
+
     function submit() {
         if (submiting) return;
         $("#main-form").removeClass("success");
@@ -28,19 +27,40 @@
             $("#orderer").parent().addClass("error");
             return;
         }
-        var id = parseInt($("#song").val());
-        if (isNaN(id)) {
-            $("#song").parent().addClass("error");
-            show_error("请输入正确的歌曲ID");
+        var id = $("#song").val().trim();
+        if (is_number(id)) {
+            id = id;
+        } else if (id.startsWith("http")) {
+            args = parseUrl(String(id));
+            if (args.hasOwnProperty("id")) {
+                id = args["id"];
+            } else {
+                pattern = /\/([1-9][0-9]*)\?/;
+                var result = pattern.exec(id);
+                if (result == null || result.length <= 1) {
+                    show_error("请输入歌曲ID(非用户ID)或者歌曲链接!");
+                    return;
+                }
+                id = result[1];
+            }
+        } else {
+            show_error("请输入歌曲ID(非用户ID)或者歌曲链接!");
             return;
         }
-        var submit_data = JSON.stringify({
+        submit_data = JSON.stringify({
             "song": id,
             "orderer": $("#orderer").val(),
             "orderto": $("#order-to").val(),
             "comment": $("#comment").val(),
             "anonymous": $("#anonymous").prop("checked")
         });
+        $("#confirm-box iframe").attr("src", "//music.163.com/outchain/player?type=2&id={id}&auto=1&height=66".replace(/\{id\}/g, id));
+        $("#confirm-box").modal({
+            closable: false,
+            onApprove: upload
+        }).modal("show");
+    }
+    function upload() {
         $("#submit-button").addClass("loading");
         submiting = true;
         $.ajax(
@@ -152,13 +172,38 @@
                     提交
                 </div>
                 <a class="ui large blue button" target="__blank" href="/modify">查询..</a>
-                <a class="ui" target="__blank" href="/static/guide/guide.html" style="text-decoration:underline">帮助文档</a>
-                
+                <a class="ui" target="__blank" href="https://yutong_java.gitee.io/ywvoice-help/guide.html" style="text-decoration:underline">帮助文档</a>
+
             </div>
         </div>
         <div class="ui segment stacked" style="min-height: 20%" id="list-container">
             <div class="ui container" style="padding-bottom:28px">
                 {%include "list.html"%}
+            </div>
+        </div>
+        <div class="ui modal" id="confirm-box">
+            <div class="header">
+                您确定要提交该首歌曲吗
+            </div>
+            <div class="content">
+                <div class="ui container">
+                    <iframe frameborder="no" border="0" style="margin-left:0;margin-right: 0 ;width:100%" src=""></iframe>
+                    <div class="ui negative message">
+                        <div class="header">
+                            注意
+                        </div>
+                        <p>请确认这是您要提交的歌曲后再点击确认！</p>
+                        <p>提交错误的歌曲ID一律会被驳回！</p>
+                    </div>
+                </div>
+            </div>
+            <div class="ui actions">
+                <div class="ui approve blue button">
+                    确认
+                </div>
+                <div class="ui cancel button">
+                    取消
+                </div>
             </div>
         </div>
     </div>
