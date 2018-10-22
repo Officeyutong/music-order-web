@@ -1,14 +1,15 @@
 from flask import Flask, request, render_template, Response, make_response, redirect
+try:
+    import config
+except Exception as ex:
+    import config_default as config
+
 if config.USE_DATABASE:
     from flask_sqlalchemy import SQLAlchemy
 import json
 from json import JSONDecoder
 from collections import namedtuple
 from datetime import datetime, timedelta, timezone
-try:
-    import config
-except Exception as ex:
-    import config_default as config
 
 app = Flask(__name__)
 if config.USE_DATABASE:
