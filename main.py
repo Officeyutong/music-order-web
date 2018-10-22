@@ -1,5 +1,6 @@
 from flask import Flask, request, render_template, Response, make_response, redirect
-from flask_sqlalchemy import SQLAlchemy
+if config.USE_DATABASE:
+    from flask_sqlalchemy import SQLAlchemy
 import json
 from json import JSONDecoder
 from collections import namedtuple

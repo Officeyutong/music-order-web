@@ -35,7 +35,7 @@
             if (args.hasOwnProperty("id")) {
                 id = args["id"];
             } else {
-                pattern = /\/([1-9][0-9]*)\?/;
+                pattern = /\/([1-9][0-9]*)\/?\?/;
                 var result = pattern.exec(id);
                 if (result == null || result.length <= 1) {
                     show_error("请输入歌曲ID(非用户ID)或者歌曲链接!");
