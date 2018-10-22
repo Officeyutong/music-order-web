@@ -67,7 +67,8 @@ def save_data():
 def consts():
     return {
         "SALT": config.SALT,
-        "DEBUG": config.DEBUG
+        "DEBUG": config.DEBUG,
+        "USING_SSL":config.USING_SSL
     }
 
 

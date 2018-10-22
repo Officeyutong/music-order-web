@@ -8,3 +8,4 @@ SALT = "CCCCTTTTQQQQLLLL"
 # mysql://用户名:密码@主机/数据库名
 USE_DATABASE = False
 SQL_CONNECT = ""
+USING_SSL = True
