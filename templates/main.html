@@ -30,7 +30,7 @@
         var id = $("#song").val().trim();
         if (is_number(id)) {
             id = id;
-        } else if (id.startsWith("http")) {
+        } else {
             args = parseUrl(String(id));
             if (args.hasOwnProperty("id")) {
                 id = args["id"];
@@ -43,10 +43,7 @@
                 }
                 id = result[1];
             }
-        } else {
-            show_error("请输入歌曲ID(非用户ID)或者歌曲链接!");
-            return;
-        }
+        } 
         submit_data = JSON.stringify({
             "song": id,
             "orderer": $("#orderer").val(),

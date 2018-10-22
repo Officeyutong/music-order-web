@@ -9,7 +9,7 @@
     <script src="/static/jquery.cookie.js"></script>
     <link rel="stylesheet" href="/static/semantic.css">
     {%else%}
-    <script src="http://cdn.staticfile.org/jquery/3.3.1/jquery.min.js" ></script>
+    <script src="http://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script>
     <script src="http://cdn.staticfile.org/vue/2.5.17/vue.min.js"></script>
     <script src="http://cdn.staticfile.org/semantic-ui/2.3.3/semantic.min.js"></script>
     <script src="http://cdn.staticfile.org/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
@@ -43,6 +43,7 @@
         }
         function parseUrl(url) {
             var obj = {};
+            if (url.indexOf("?") == -1 && url.indexOf("&") == -1) return {};
             var query = url.split("?")[1];
             var queryArr = query.split("&");
             queryArr.forEach(function (item) {
