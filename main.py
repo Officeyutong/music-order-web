@@ -46,6 +46,9 @@ def load_data():
                         to_remove.add(key)
                 for x in to_remove:
                     del app.config["songs"][x]
+                for k, v in app.config["by_id"].items():
+                    if "checked" not in v:
+                        v["checked"] = False
         if config.DEBUG:
             print("Loaded:{}".format(json_obj))
 
@@ -68,7 +71,7 @@ def consts():
     return {
         "SALT": config.SALT,
         "DEBUG": config.DEBUG,
-        "USING_SSL":config.USING_SSL
+        "USING_SSL": config.USING_SSL
     }
 
 
@@ -117,7 +120,8 @@ def submit():
         "anonymous": submit_data["anonymous"],
         "time": str((datetime.now()).astimezone(timezone(timedelta(hours=8))).strftime("%Y.%m.%d %H:%M")),
         "submit_id": submit_id,
-        "password": password
+        "password": password,
+        "checked": False
     }
     app.config["songs"][song_id].append(submit_id)
     app.config["by_id"][submit_id] = order
@@ -281,6 +285,30 @@ def modify_order():
     if song_id not in app.config["songs"]:
         app.config["songs"][song_id] = list()
     app.config["songs"][song_id].append(submit_id)
+    save_data()
+    return encode_json({
+        "status": 0
+    })
+
+
+@app.route("/api/change_check_state", methods=["POST"])
+def change_check_state():
+    password = request.form["password"]
+    submit_id = request.form["submit_id"]
+    # print(request.form)
+    state = request.form["state"]=="true"
+    if password != get_md5(config.ADMIN_PASSWORD) and password != get_md5(config.DJ_PASSWORD):
+        return encode_json({
+            "status": -1,
+            "message": "密码错误"
+        })
+    if str(submit_id) not in app.config["by_id"]:
+        return encode_json({
+            "status": -1,
+            "message": "假的提交ID"
+        })
+    app.config["by_id"][str(submit_id)]["checked"] = state
+    print("changing {} to {}".format(submit_id,state))
     save_data()
     return encode_json({
         "status": 0

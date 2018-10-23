@@ -17,7 +17,25 @@
             data: {
                 play_list: [],
                 is_admin: false
-            }, methods: {
+            },
+
+            methods: {
+                changeCheckState: function (id, evt) {
+                    console.log("changing " + id + " to " + evt.target.checked);
+                    $.ajax({
+                        url: "/api/change_check_state",
+                        async: true,
+                        method: "POST",
+                        data: {
+                            password: hash_md5($("#password").val()),
+                            submit_id: id,
+                            state: evt.target.checked
+                        }, success: function (res) {
+                            res = JSON.parse(res);
+
+                        }
+                    })
+                },
                 getAddress: function (id) {
                     return "//music.163.com/outchain/player?type=2&id={id}&auto=1&height=66".replace(/{id}/g, id);
                 },
@@ -150,6 +168,7 @@
                     <table class="ui table">
                         <thead>
                             <tr>
+
                                 <th>请求ID</th>
                                 <th v-if="is_admin">请求密码</th>
                                 <th>点歌人</th>
@@ -162,7 +181,10 @@
                         </thead>
                         <tbody>
                             <tr v-for="order in item.orders">
-                                <td v-text="order.submit_id"></td>
+                                <td>
+                                    <div class="ui checkbox"><input type="checkbox" v-model="order.checked" v-on:click="changeCheckState(order.submit_id,$event)"><label
+                                            v-text="order.submit_id"></label></div>
+                                </td>
                                 <td v-if="is_admin" v-text="order.password"></td>
                                 <td v-text="HTMLEncode(order.orderer)"> </td>
                                 <td v-text="HTMLEncode(order.orderto)"> </td>
