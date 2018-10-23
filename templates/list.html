@@ -9,7 +9,7 @@
             },
             methods: {
                 getAddress: function (id) {
-                    return "//music.163.com/outchain/player?type=2&id={id}&auto=1&height=66".replace(/{id}/g, id);
+                    return "//music.163.com/outchain/player?type=2&id={id}&height=66".replace(/{id}/g, id);
                 },
                 click: function (song_id) {
                     console.log(event);
@@ -67,7 +67,7 @@
         <div class="ui one column grid">
             <div class="ui column">
                 <div class="ui fluid container" style="height:100px">
-                    <iframe frameborder="no" border="0" style="margin-left:0;margin-right: 0 ;width:100%" v-bind:src="getAddress(item.id)"></iframe>
+                    <iframe frameborder="no" border="0" style="margin-left:0;margin-right: 0 ;width:100%" v-bind:src="getAddress(item.id)" ></iframe>
                 </div>
             </div>
             <div class="ui column">
