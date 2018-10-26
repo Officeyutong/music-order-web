@@ -4,6 +4,7 @@
 {%endblock%}
 {%block body%}
 <script>
+
     var list;
     $(this).ready(function () {
         $("#list-container").hide();
@@ -32,6 +33,13 @@
                             state: evt.target.checked
                         }, success: function (res) {
                             res = JSON.parse(res);
+                            if (res.status != -1) {
+                                $("#base-error-box p").text("发生错误:" + res.message);
+                                $("#base-error-box").modal("show");
+                            }
+                        }, erorr: function (res, err) {
+                            $("#base-error-box p").text("发生错误:" + err);
+                            $("#base-error-box").modal("show");
 
                         }
                     })

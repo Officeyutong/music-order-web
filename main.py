@@ -308,7 +308,6 @@ def change_check_state():
             "message": "假的提交ID"
         })
     app.config["by_id"][str(submit_id)]["checked"] = state
-    print("changing {} to {}".format(submit_id,state))
     save_data()
     return encode_json({
         "status": 0
