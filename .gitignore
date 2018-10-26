@@ -110,3 +110,4 @@ venv.bak/
 dmypy.json
 autosave.bak
 autosave.bak
+config.py
