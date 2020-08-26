@@ -9,8 +9,8 @@
 
 #### 安装教程
 - 1.下载
-- 2.复制config_default.py为config.py并修改至所需
-- 3.python3.6 main.py或部署到其他应用
+- 2.复制config.sample.py为config.py并在其中覆盖config_default.py的所需内容
+- 3.python3 run.py或部署到其他应用
 
 
 
