@@ -46,7 +46,7 @@
                     })
                 },
                 getAddress: function (id) {
-                    return "//music.163.com/outchain/player?type=2&id={id}&auto=1&height=66".replace(/{id}/g, id);
+                    return `//music.163.com/outchain/player?type=2&id=${id}&auto=0&height=66`;
                 },
                 getSourceURL: function (id) {
                     return "https://music.163.com/#/song?id=" + id;
