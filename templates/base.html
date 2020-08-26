@@ -2,7 +2,7 @@
 
 <head>
     <title>{%block title %}{%endblock%}</title>
-
+    <!-- <script src="https://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script> -->
     {%if DEBUG%}
     <script src="/static/jquery-3.3.1.js"></script>
     <script src="/static/vue.js"></script>
@@ -28,6 +28,7 @@
     <script src="/static/md5.js"></script>
 
     <script>
+        // var x=$("div").
         function HTMLEncode(html) {
             var temp = document.createElement("div");
             (temp.textContent != null) ? (temp.textContent = html) : (temp.innerText = html);

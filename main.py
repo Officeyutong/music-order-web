@@ -296,7 +296,7 @@ def change_check_state():
     password = request.form["password"]
     submit_id = request.form["submit_id"]
     # print(request.form)
-    state = request.form["state"]=="true"
+    state = request.form["state"] == "true"
     if password != get_md5(config.ADMIN_PASSWORD) and password != get_md5(config.DJ_PASSWORD):
         return encode_json({
             "status": -1,
@@ -321,7 +321,3 @@ def encode_json(text):
 def get_md5(text: str):
     import hashlib
     return str(hashlib.md5((config.SALT+str(text)).encode("utf-8")).hexdigest()).lower()
-
-
-if __name__ == "__main__":
-    app.run(host=config.HOST, port=config.PORT, debug=config.DEBUG)
